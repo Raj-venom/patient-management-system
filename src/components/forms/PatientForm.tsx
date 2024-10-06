@@ -20,6 +20,7 @@ import SubmitButton from "../SubmitButton"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { UserFormValidation } from "@/lib/validation"
+import { createUser } from "@/lib/actions/patient.actions"
 
 
 
@@ -38,12 +39,25 @@ const PatientForm = () => {
   })
 
   // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof UserFormValidation>) {
+  async function onSubmit({ name, email, phone }: z.infer<typeof UserFormValidation>) {
     setIsLoading(true)
-    console.log(values)
-    setTimeout(() => {
-    }, 2000)
-    setIsLoading(false)
+    try {
+      const userData = { name, email, phone }
+
+      const newUser = await createUser(userData) // 3. Call your action.
+
+      if (newUser) {
+        console.log("New user created successfully", newUser.$id)
+        router.push(`/patients/${newUser.$id}/register`);
+      } else {
+        console.error("An error occurred while creating a new user")
+      }
+
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setIsLoading(false)
+    }
   }
   return (
     <Form {...form}>
