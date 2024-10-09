@@ -63,17 +63,30 @@ export const registerPatient = async ({ identificationDocument, ...patient }: Re
 
         // upload file to storage bucket
         let file;
+        console.log('found identification document:', identificationDocument?.get('fileName'));
+
         if (identificationDocument) {
-            console.log('found identification document:', identificationDocument?.get('fileName'));
-            const inputFile = identificationDocument && InputFile.fromBlob(
-                identificationDocument?.get("blobFile") as Blob,
-                identificationDocument?.get("fileName") as string
-            );
-            console.log('inputFile', inputFile);
+            const blobFile = identificationDocument.get("blobFile") as Blob;
+            const fileName = identificationDocument.get("fileName") as string;
+
+            if (!blobFile || !fileName) {
+                console.error('blobFile or fileName is undefined');
+                return;
+            }
+
+            const inputFile = await InputFile.fromBlob(blobFile, fileName);
+            if (!inputFile) {
+                console.error('inputFile is undefined');
+                return;
+            }
+
             file = await storage.createFile(BUCKET_ID!, ID.unique(), inputFile);
             console.log('file uploaded:', file.$id);
+
+        } else {
+            console.error('identificationDocument is undefined');
         }
-        console.log('outside file:', file?.$id);
+
         // create a new patient document
         const newPatient = await databases.createDocument(
             DATABASE_ID!,
@@ -91,9 +104,8 @@ export const registerPatient = async ({ identificationDocument, ...patient }: Re
         return parseStringify(newPatient);
 
     } catch (error: any) {
-        // console.error("An error occurred while registering a new patient:", error);
-        console.error("An error occurred while registering a new patient:");
+        console.error("An error occurred while registering a new patient:", error);
+        // console.error("An error occurred while registering a new patient:");
 
     }
 }
-

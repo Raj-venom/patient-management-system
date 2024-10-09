@@ -20,7 +20,6 @@ import {
 
 
 import CustomFormField, { FormFieldType } from "../CustomFormField";
-// import { FileUploader } from "../FileUploader";
 import SubmitButton from "../SubmitButton";
 import { PatientFormValidation } from "@/lib/validation";
 import { SelectItem } from "../ui/select";
@@ -46,25 +45,20 @@ const RegisterForm = ({ user }: { user: User }) => {
         setIsLoading(true);
 
         let formData;
-        if (values.identificationDocument && values.identificationDocument.length > 0) {
+        if (
+            values.identificationDocument &&
+            values.identificationDocument?.length > 0
+        ) {
             const blobFile = new Blob([values.identificationDocument[0]], {
-                type: values.identificationDocument[0].type
-            })
+                type: values.identificationDocument[0].type,
+            });
 
-            formData = new FormData()
-            formData.append('blobFile', blobFile)
-            formData.append('fileName', values.identificationDocument[0].name)
-        };
+            formData = new FormData();
+            formData.append("blobFile", blobFile);
+            formData.append("fileName", values.identificationDocument[0].name);
+        }
 
         try {
-
-            // const patientData = {
-            //     ...values,
-            //     identificationDocument: formData,
-            //     userId: user.$id,
-            //     birthDate: new Date(values.birthDate)
-            // };
-
             const patientData = {
                 userId: user.$id,
                 name: values.name,
@@ -86,10 +80,10 @@ const RegisterForm = ({ user }: { user: User }) => {
                 identificationType: values.identificationType,
                 identificationNumber: values.identificationNumber,
                 identificationDocument: values.identificationDocument
-                  ? formData
-                  : undefined,
+                    ? formData
+                    : undefined,
                 privacyConsent: values.privacyConsent,
-              };
+            };
 
             const patient = await registerPatient(patientData);
 
