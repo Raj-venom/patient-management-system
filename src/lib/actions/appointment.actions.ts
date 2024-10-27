@@ -35,3 +35,19 @@ export const createAppointment = async (appointment: CreateAppointmentParams) =>
     }
 
 }
+
+export const getAppointmentById = async (appointmentId: string) => {
+
+    try {
+        const appointment = await databases.getDocument(
+            DATABASE_ID!,
+            APPOINTMENT_COLLECTION_ID!,
+            appointmentId,
+        )
+
+        return parseStringify(appointment);
+
+    } catch (error: any) {
+        console.error("An error occurred while fetching appointment by id:", error);
+    }
+}

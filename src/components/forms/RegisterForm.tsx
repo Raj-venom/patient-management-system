@@ -117,7 +117,7 @@ const RegisterForm = ({ user }: { user: User }) => {
                         fieldType={FormFieldType.INPUT}
                         control={form.control}
                         name="name"
-                        placeholder="raj singh"
+                        placeholder="Sara Adams"
                         iconSrc="/assets/icons/user.svg"
                         iconAlt="user"
                     />
