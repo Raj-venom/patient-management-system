@@ -20,7 +20,7 @@ import SubmitButton from "../SubmitButton"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { UserFormValidation } from "@/lib/validation"
-import { createUser } from "@/lib/actions/patient.actions"
+import { createUser, getPatient, getPatientByEmail } from "@/lib/actions/patient.actions"
 
 
 
@@ -43,6 +43,12 @@ const PatientForm = () => {
     setIsLoading(true)
     try {
       const userData = { name, email, phone }
+
+      const patient = await getPatientByEmail(email)
+      if (patient) {
+        router.push(`/patients/${patient.userId}/new-appointment`);
+        return;
+      }
 
       const newUser = await createUser(userData) // 3. Call your action.
 

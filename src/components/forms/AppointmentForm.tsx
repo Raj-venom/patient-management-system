@@ -1,7 +1,7 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { set, useForm } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { z } from "zod"
 
 import {
@@ -17,23 +17,24 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import CustomFormField, { FormFieldType } from "../CustomFormField"
 import SubmitButton from "../SubmitButton"
-import { useState } from "react"
+import { Dispatch, SetStateAction, useState } from "react"
 import { useRouter } from "next/navigation"
 import { getAppointmentSchema } from "@/lib/validation"
 import { createUser } from "@/lib/actions/patient.actions"
 import { Appointment } from "@/types/appwrite.types";
-import { createAppointment } from "@/lib/actions/appointment.actions"
+import { createAppointment, updateAppointment } from "@/lib/actions/appointment.actions"
 import { Doctors } from "@/constants"
 import { SelectItem } from "../ui/select"
 import Image from "next/image"
 
 
 
-const AppointmentForm = ({ userId, patientId, type, appointment }: {
+const AppointmentForm = ({ userId, patientId, type = "create", appointment, setOpen }: {
     userId: string;
     patientId: string;
     type: "create" | "schedule" | "cancel";
     appointment?: Appointment;
+    setOpen?: Dispatch<SetStateAction<boolean>>;
 }) => {
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(false);
@@ -70,7 +71,7 @@ const AppointmentForm = ({ userId, patientId, type, appointment }: {
         }
 
         // console.log(values)
-        console.log(patientId,"patientId")
+        console.log(patientId, "patientId")
 
         try {
             if (type === "create" && patientId) {
@@ -106,11 +107,12 @@ const AppointmentForm = ({ userId, patientId, type, appointment }: {
                     type,
                 }
 
-                // const updatedAppointment = await updateAppointment(appointmentToUpdate)
+                const updatedAppointment = await updateAppointment(appointmentToUpdate)
 
-                // if (updatedAppointment) {
-                //     form.reset();
-                // }
+                if (updatedAppointment) {
+                    setOpen && setOpen(false)  
+                    form.reset();
+                }
 
             }
         } catch (error) {

@@ -127,3 +127,19 @@ export const getPatient = async (userId: string) => {
     }
 
 }
+
+export const getPatientByEmail  = async (email: string) => {
+    try {
+        const patient = await databases.listDocuments(
+            DATABASE_ID!,
+            PATIENT_COLLECTION_ID!,
+            [Query.equal("email", [email]),]
+        )
+
+        return parseStringify(patient.documents[0]);
+        
+    } catch (error: any) {
+        console.error("An error occurred while getting a patient:", error);
+        
+    }
+}
