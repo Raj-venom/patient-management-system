@@ -11,9 +11,10 @@ import {
     databases,
     storage,
     users,
+    messaging,
 } from "../appwrite.config";
 
-import { parseStringify } from "../utils";
+import { formatDateTime, parseStringify } from "../utils";
 import { revalidatePath } from "next/cache";
 import { Appointment } from "@/types/appwrite.types";
 
@@ -54,6 +55,21 @@ export const getAppointmentById = async (appointmentId: string) => {
     }
 }
 
+export const sendSMSNotification = async (userId: string, content: string) => {
+    try {
+        // https://appwrite.io/docs/references/1.5.x/server-nodejs/messaging#createSms
+        const message = await messaging.createSms(
+            ID.unique(),
+            content,
+            [],
+            [userId]
+        );
+        return parseStringify(message);
+    } catch (error) {
+        console.error("An error occurred while sending sms:", error);
+    }
+};
+
 export const updateAppointment = async ({
     appointmentId,
     userId,
@@ -73,7 +89,9 @@ export const updateAppointment = async ({
         if (!updateAppointment) {
             throw new Error("An error occurred while updating appointment");
         }
-        // Sms notification todo
+
+        const smsMessage = `Greetings from CarePulse. ${type === "schedule" ? `Your appointment is confirmed for ${formatDateTime(appointment.schedule!).dateTime} with Dr. ${appointment.primaryPhysician}` : `We regret to inform that your appointment for ${formatDateTime(appointment.schedule!).dateTime} is cancelled. Reason:  ${appointment.cancellationReason}`}.`;
+        await sendSMSNotification(userId, smsMessage);
 
         revalidatePath("/admin")
         return parseStringify(updateAppointment);
